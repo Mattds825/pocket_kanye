@@ -1,11 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
-
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pocket_kanye/network_helper.dart';
-import 'package:save_image/save_image.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:vibrate/vibrate.dart';
 
@@ -43,6 +40,15 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         quote = value.quote;
       });
+    });
+  }
+
+  void _saveImage() async {
+    screenshotController.capture().then((File image) async {
+      Vibrate.feedback(FeedbackType.medium);
+      await Share.file('ESYS AMLOG', 'amlog.jpg', image.readAsBytesSync(), 'image/jpg');
+    }).catchError((onError) {
+      print(onError);
     });
   }
 
@@ -102,17 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             GestureDetector(
               onLongPress: () {
-                Vibrate.feedback(FeedbackType.medium);
-                screenshotController.capture().then((File image) async {
-                  setState(() {
-                    _imageFile = image;
-                  });
-                  bool isSaveSuccess = await SaveImage.save(
-                      imageBytes: Uint8List.fromList(await image.readAsBytes()));
-                  print("File Saved to Gallery");
-                }).catchError((onError) {
-                  print(onError);
-                });
+                _saveImage();
               },
               child: Screenshot(
                 controller: screenshotController,
